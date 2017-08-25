@@ -5,7 +5,11 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
+import random
+
 from scrapy import signals
+from settings import USER_AGENTS
+from settings import PROXIES
 
 
 class ZhihuUserSpiderMiddleware(object):
@@ -54,3 +58,24 @@ class ZhihuUserSpiderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+class RandomUserAgent(object):
+    def process_request(self, request, spider):
+        useragent = random.choice(USER_AGENTS)
+        request.headers.setdefault("User-Agent", useragent)
+
+class ProxyMiddleware(object):
+    def process_request(self, request, spider):
+        proxy = random.choice(PROXIES)
+
+        # 没有代理账户验证的代理使用方式
+        if proxy['user_pass'] is None:
+            request.meta['proxy'] = "http://" + proxy['ip_port']
+
+        # 有代理账户验证的代理使用方式
+        else:
+            # 对账户密码进行base64编码转换
+            base64_userpasswd = base64.b64encode(proxy['user_pass'])
+            # 对应到代理服务器的信令格式里
+            request.headers['Proxy-Authorization'] = 'Basic ' + base64_userpasswd
+            request.meta['proxy'] = "http://" + proxy['ip_port']
