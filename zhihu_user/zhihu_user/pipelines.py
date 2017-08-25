@@ -5,8 +5,6 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import json
-import pymongo
-import settings
 import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -26,18 +24,3 @@ class ZhihuUserPipeline_json(object):
     def close_spider(self, spider):
         self.file.write(']')
         self.file.close()
-
-# 存储到mongodb
-class ZhihuUserPipeline_mongodb(object):
-    def __init__(self):
-        host = settings.MONGODB_HOST
-        port = settings.MONGODB_PORT
-        dbname = settings.MONGODB_DBNAME
-        table = settings.MONGODB_TABLE
-        client = pymongo.MongoClient(host = host, port = port)
-        db = client[dbname]
-        self.table = db[table]
-    def process_item(self, item, spider):
-        user_info = dict(item)
-        self.table.insert(user_info)
-        return item
