@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import json
+import sys
 import scrapy
 from scrapy import Request
 from zhihu_user.items import ZhihuUserItem
+from scrapy.exceptions import CloseSpider
 
 
 
@@ -23,6 +25,11 @@ class ZhihuSpider(scrapy.Spider):
 
     # 处理响应对象
     def parse(self, response):
+        if response.status == 403:
+            raise CloseSpider('反爬虫作怪，403，已强制停止')
+        # print type(response)
+        # print response
+        # print response.status
 
 
         #返回item
@@ -46,12 +53,12 @@ class ZhihuSpider(scrapy.Spider):
 
             # 已爬取的用户总数
             self.item_num += 1
-            if self.item_num > 300:
-                exit()
+            if self.item_num > 10000:
+                raise CloseSpider('已爬完%d条记录' % self.item_num)
 
 
             #提示信息
-            print '~' * 50
+            print '~' * 100
             print '第%d个用户信息' % self.item_num
 
             #将XXX的关注添加进其列表
