@@ -6,7 +6,6 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 import random
-import base64
 
 from scrapy import signals
 from settings import USER_AGENTS
